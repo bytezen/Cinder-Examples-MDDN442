@@ -1,0 +1,6 @@
+.DS_Store
+*.xcodeproj
+vc9/
+vc10/
+build/
+Info.plist
