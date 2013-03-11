@@ -1,14 +1,19 @@
-#include "cinder/ObjLoader.h"
+
 #include "cinder/app/AppBasic.h"
+#include "cinder/ObjLoader.h"
 //This must be defined after AppBasic
 #include "cinder/Arcball.h"
-#include "cinder/gl/gl.h"
-#include "cinder/gl/GlslProg.h"
-#include "cinder/params/Params.h"
 #include "cinder/ImageIo.h"
+#include "cinder/Font.h"
 #include "cinder/Utilities.h"
 #include "cinder/Camera.h"
+
+#include "cinder/gl/gl.h"
+#include "cinder/gl/GlslProg.h"
+#include "cinder/gl/TextureFont.h"
 #include "cinder/gl/Vbo.h"
+
+#include "cinder/params/Params.h"
 #include "Resources.h"
 
 using namespace ci;
@@ -22,13 +27,16 @@ using namespace std;
         helloworld_color:       basic example with color passed in from OpenGL gl_Color
         helloworld_uniform:     basic example with color passed in through a uniform variable
         flatten:                modify the z coordinate of the vertex to flatten the image
+        flatten_wiggle:         simple example moving the vert positions. (Cinder VBO sample does this on the CPU)
+ 
+        the source of these shaders is: http://lighthouse3D.com 
 */
 
 //#define _use_helloworld
-#define _use_helloworld_color
+//#define _use_helloworld_color
 //#define _use_helloworld_uniform
 //#define _use_flatten
-//#define _use_flatten_wiggle
+#define _use_flatten_wiggle
 
 
 class BasicShaderApp : public AppBasic {
@@ -51,11 +59,12 @@ private:
 	Vec3f		mEye, mTarget;
     Color       mKettleColor;
     
-	Arcball			mArcball;    
-	TriMesh			mMesh;
-	gl::VboMesh		mVBO;
-	gl::GlslProg	mShader;    
-    
+	Arcball                 mArcball;    
+	TriMesh                 mMesh;
+	gl::VboMesh             mVBO;
+	gl::GlslProg            mShader;    
+    Font                    mFont;
+    gl::TextureFontRef      mTextureFont;
 };
 
 void BasicShaderApp::prepareSettings(Settings *settings)
@@ -96,7 +105,7 @@ void BasicShaderApp::setup()
     
 
     //bind the shader to the GPU
-    mShader.bind();
+//    mShader.bind();
     
 	mDoSave = false;
     
@@ -120,7 +129,9 @@ void BasicShaderApp::setup()
     
     mKettleColor = Color::white();
     
-
+//    mFont = Font( "AndaleMono", 18 );    
+	mFont =  Font( loadResource( RES_DROID_SANS_FONT ), 16 );
+	mTextureFont = gl::TextureFont::create( mFont );
 }
 
 void BasicShaderApp::keyDown( KeyEvent event )
@@ -159,14 +170,21 @@ void BasicShaderApp::resize( ResizeEvent event )
 
 void BasicShaderApp::update()
 {
-	mCam.lookAt( mEye, mTarget, -Vec3f::yAxis() );
+//	mCam.lookAt( mEye, mTarget, -Vec3f::yAxis() );
 }
 
 void BasicShaderApp::draw()
 {
+    
 	gl::clear( Color::black() ); 
+	// Draw FPS
+	gl::color( Color::white() );
+	mTextureFont->drawString( toString( floor(getAverageFps()) ) + " FPS", Vec2f( 100, getWindowHeight() - mTextureFont->getDescent() ) );
+    
+    gl::pushMatrices();
 	gl::setMatrices( mCam );
-	
+    gl::enableAlphaBlending();
+    
 	// draw interface
 	params::InterfaceGl::draw();
 	
@@ -194,13 +212,19 @@ void BasicShaderApp::draw()
     mShader.uniform("nmouse", gobbedygook );   
 #endif
 
+#ifdef _use_flatten_wiggle
+    mShader.uniform("wiggle", true );   
+    mShader.uniform("time", float(getElapsedSeconds()) );       
+#endif
     gl::pushMatrices();
     gl::rotate( mArcball.getQuat() );
     gl::draw( mVBO );
     gl::popMatrices();
-    mShader.unbind();
-     
-//     */
+    mShader.unbind();     
+    
+    gl::popMatrices();
+    
+
     
     /*
     // Set color through OpenGL state

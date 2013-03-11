@@ -14,3 +14,5 @@
 #define RES_HELLOWORLD_COLOR_FRAG		CINDER_RESOURCE( ../glsl/, helloworld_color.fs, 137, GLSL )
 #define RES_FLATTEN_WIGGLE_VERT		CINDER_RESOURCE( ../glsl/, flatten_wiggle.vs, 138, GLSL )
 #define RES_FLATTEN_WIGGLE_FRAG		CINDER_RESOURCE( ../glsl/, flatten_wiggle.fs, 139, GLSL )
+
+#define RES_DROID_SANS_FONT         CINDER_RESOURCE( ../Resources/, DroidSans.ttf, 150, TTF)
