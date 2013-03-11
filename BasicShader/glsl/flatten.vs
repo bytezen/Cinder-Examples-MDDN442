@@ -4,7 +4,7 @@
 void main()
 {
 	vec4 v = vec4(gl_Vertex);
-    v.z *= 2.0;
+    v.z *= 0.0;
     v.y *= -1.;
 
     //this is a hack because the obj file was drawing upside down
