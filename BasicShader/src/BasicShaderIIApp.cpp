@@ -1,36 +1,26 @@
+//
+//  BasicShaderIIApp.cpp
+//  BasicShader
+//
+//  Created by Rhazes Spell on 3/12/13.
+//  Copyright 2013 __MyCompanyName__. All rights reserved.
+//
+
 
 #include "cinder/app/AppBasic.h"
 #include "cinder/ObjLoader.h"
-//This must be defined after AppBasic
+#include "cinder/params/Params.h"
+#include "cinder/Camera.h"
+#include "Resources.h"
 #include "cinder/Arcball.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Font.h"
 #include "cinder/Utilities.h"
-#include "cinder/Camera.h"
-
 #include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/TextureFont.h"
 #include "cinder/gl/Vbo.h"
 
-#include "cinder/params/Params.h"
-#include "Resources.h"
-
-using namespace ci;
-using namespace ci::app;
-using namespace std;
-
-/*
-    Uncomment one of these below to run that example
-
-        helloworld:             basic shader example
-        helloworld_color:       basic example with color passed in from OpenGL gl_Color
-        helloworld_uniform:     basic example with color passed in through a uniform variable
-        flatten:                modify the z coordinate of the vertex to flatten the image
-        flatten_wiggle:         simple example moving the vert positions. (Cinder VBO sample does this on the CPU)
- 
-        the source of these shaders is: http://lighthouse3D.com 
-*/
 
 //#define _use_helloworld
 //#define _use_helloworld_color
@@ -38,8 +28,11 @@ using namespace std;
 //#define _use_flatten
 #define _use_flatten_wiggle
 
+using namespace ci;
+using namespace ci::app;
+using namespace std;
 
-class BasicShaderApp : public AppBasic {
+class BasicShaderIIApp: public AppBasic {
 public:
 	void prepareSettings(Settings *settings);
 	void setup();
@@ -48,8 +41,8 @@ public:
 	void mouseDrag( MouseEvent event );    
 	void resize( ResizeEvent event );
 	void update();
-	void draw();
-	
+    void draw();
+    
 private:
 	void saveFrame();
 	params::InterfaceGl mParams;
@@ -59,28 +52,30 @@ private:
 	Vec3f		mEye, mTarget;
     Color       mKettleColor;
     
-	Arcball                 mArcball;    
+	Arcball                 mArcball;        
 	TriMesh                 mMesh;
 	gl::VboMesh             mVBO;
 	gl::GlslProg            mShader;    
     Font                    mFont;
     gl::TextureFontRef      mTextureFont;
+    
+    
+        
 };
-
-void BasicShaderApp::prepareSettings(Settings *settings)
+void BasicShaderIIApp::prepareSettings(Settings *settings)
 {
 	settings->setWindowSize( 1024, 768 );
 	settings->setTitle("BasicShader");
 }
 
-void BasicShaderApp::setup()
+void BasicShaderIIApp::setup()
 {
     //load up an obj file into a mesh
 	ObjLoader loader( (DataSourceRef)loadResource( RES_TEAPOT_OBJ ) );
     loader.load( &mMesh );
     //read it into a VBO that we can push to the GPU...    
     mVBO = gl::VboMesh( mMesh);    
-        
+    
     //Load up some shaders
 #ifdef _use_helloworld
 	mShader = gl::GlslProg( loadResource( RES_HELLOWORLD_VERT ), loadResource( RES_HELLOWORLD_FRAG ) );    
@@ -89,7 +84,7 @@ void BasicShaderApp::setup()
 #ifdef _use_helloworld_uniform
 	mShader = gl::GlslProg( loadResource( RES_HELLOWORLD_UNI_VERT ), loadResource( RES_HELLOWORLD_UNI_FRAG ) );    
 #endif
-
+    
 #ifdef _use_helloworld_color
 	mShader = gl::GlslProg( loadResource( RES_HELLOWORLD_COLOR_VERT ), loadResource( RES_HELLOWORLD_COLOR_FRAG ) );    
 #endif
@@ -103,9 +98,9 @@ void BasicShaderApp::setup()
 #endif
     
     
-
+    
     //bind the shader to the GPU
-//    mShader.bind();
+    //    mShader.bind();
     
 	mDoSave = false;
     
@@ -133,7 +128,7 @@ void BasicShaderApp::setup()
 	mTextureFont = gl::TextureFont::create( mFont );
 }
 
-void BasicShaderApp::keyDown( KeyEvent event )
+void BasicShaderIIApp::keyDown( KeyEvent event )
 {
 	switch( event.getChar() ){
 		case 's':
@@ -143,22 +138,22 @@ void BasicShaderApp::keyDown( KeyEvent event )
 			setFullScreen( !isFullScreen() );
 			break;
 		default:
-		break;
+            break;
 	}
 }
 
-void BasicShaderApp::mouseDown( MouseEvent event )
+void BasicShaderIIApp::mouseDown( MouseEvent event )
 {
     mArcball.mouseDown( event.getPos() );    
 }
 
-void BasicShaderApp::mouseDrag( MouseEvent event )
+void BasicShaderIIApp::mouseDrag( MouseEvent event )
 {
     mArcball.mouseDrag( event.getPos() );    
 }
 
 
-void BasicShaderApp::resize( ResizeEvent event )
+void BasicShaderIIApp::resize( ResizeEvent event )
 {   
 	mCam.setPerspective( 60.0f, getWindowAspectRatio(), 5.0f, 5000.0f );
 	mArcball.setWindowSize( getWindowSize() );
@@ -167,12 +162,12 @@ void BasicShaderApp::resize( ResizeEvent event )
     
 }
 
-void BasicShaderApp::update()
+void BasicShaderIIApp::update()
 {
-//	mCam.lookAt( mEye, mTarget, -Vec3f::yAxis() );
+    //	mCam.lookAt( mEye, mTarget, -Vec3f::yAxis() );
 }
 
-void BasicShaderApp::draw()
+void BasicShaderIIApp::draw()
 {
 	gl::clear( Color::black() ); 
 	// Draw FPS
@@ -198,7 +193,7 @@ void BasicShaderApp::draw()
 #ifdef _use_helloworld_color
     gl::color( mKettleColor );    
 #endif
-
+    
     mShader.bind();
     
 #ifdef _use_helloworld_uniform         
@@ -209,7 +204,7 @@ void BasicShaderApp::draw()
     Vec2f gobbedygook(nx,ny);
     mShader.uniform("nmouse", gobbedygook );   
 #endif
-
+    
 #ifdef _use_flatten_wiggle
     mShader.uniform("wiggle", true );   
     mShader.uniform("time", float(getElapsedSeconds()) );       
@@ -222,32 +217,32 @@ void BasicShaderApp::draw()
     
     gl::popMatrices();
     
-
+    
     
     /*
-    // Set color through OpenGL state
-    gl::color( clr ); //Color::white() );
-    */
+     // Set color through OpenGL state
+     gl::color( clr ); //Color::white() );
+     */
     
     
     /* 
      //basic hello world
-    mShader.bind();
-	gl::pushMatrices();
-    gl::rotate( mArcball.getQuat() );
-    
-    gl::draw( mVBO );
-    gl::popMatrices();
-    mShader.unbind();
+     mShader.bind();
+     gl::pushMatrices();
+     gl::rotate( mArcball.getQuat() );
+     
+     gl::draw( mVBO );
+     gl::popMatrices();
+     mShader.unbind();
      */
     
 }
 
-void BasicShaderApp::saveFrame()
+void BasicShaderIIApp::saveFrame()
 {
 	// path works for me, might not for you
-//	writeImage( getUniquePath( getAppPath() + "../../../../../../screengrabs/BasicShader.png" ), copyWindowSurface() );
+    //	writeImage( getUniquePath( getAppPath() + "../../../../../../screengrabs/BasicShader.png" ), copyWindowSurface() );
 }
 
 
-CINDER_APP_BASIC( BasicShaderApp, RendererGl )
+CINDER_APP_BASIC( BasicShaderIIApp, RendererGl )
