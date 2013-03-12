@@ -11,7 +11,7 @@
 #include "cinder/ObjLoader.h"
 #include "cinder/params/Params.h"
 #include "cinder/Camera.h"
-#include "Resources.h"
+#include "ResourcesII.h"
 #include "cinder/Arcball.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Font.h"
@@ -22,11 +22,7 @@
 #include "cinder/gl/Vbo.h"
 
 
-//#define _use_helloworld
-//#define _use_helloworld_color
-//#define _use_helloworld_uniform
-//#define _use_flatten
-#define _use_flatten_wiggle
+#define _use_toon1
 
 using namespace ci;
 using namespace ci::app;
@@ -50,7 +46,6 @@ private:
 	bool 		mDoSave;
 	CameraPersp mCam;
 	Vec3f		mEye, mTarget;
-    Color       mKettleColor;
     
 	Arcball                 mArcball;        
 	TriMesh                 mMesh;
@@ -58,14 +53,14 @@ private:
 	gl::GlslProg            mShader;    
     Font                    mFont;
     gl::TextureFontRef      mTextureFont;
-    
+    Vec3f                   mLightDir;
     
         
 };
 void BasicShaderIIApp::prepareSettings(Settings *settings)
 {
 	settings->setWindowSize( 1024, 768 );
-	settings->setTitle("BasicShader");
+	settings->setTitle("BasicShaderII");
 }
 
 void BasicShaderIIApp::setup()
@@ -77,26 +72,9 @@ void BasicShaderIIApp::setup()
     mVBO = gl::VboMesh( mMesh);    
     
     //Load up some shaders
-#ifdef _use_helloworld
-	mShader = gl::GlslProg( loadResource( RES_HELLOWORLD_VERT ), loadResource( RES_HELLOWORLD_FRAG ) );    
+#ifdef _use_toon1
+	mShader = gl::GlslProg( loadResource( RES_TOON1_VERT ), loadResource( RES_TOON1_FRAG ) );    
 #endif
-    
-#ifdef _use_helloworld_uniform
-	mShader = gl::GlslProg( loadResource( RES_HELLOWORLD_UNI_VERT ), loadResource( RES_HELLOWORLD_UNI_FRAG ) );    
-#endif
-    
-#ifdef _use_helloworld_color
-	mShader = gl::GlslProg( loadResource( RES_HELLOWORLD_COLOR_VERT ), loadResource( RES_HELLOWORLD_COLOR_FRAG ) );    
-#endif
-    
-#ifdef _use_flatten
-	mShader = gl::GlslProg( loadResource( RES_FLATTEN_VERT ), loadResource( RES_FLATTEN_FRAG ) );        
-#endif
-    
-#ifdef _use_flatten_wiggle
-	mShader = gl::GlslProg( loadResource( RES_FLATTEN_WIGGLE_VERT ), loadResource( RES_FLATTEN_WIGGLE_FRAG ) );        
-#endif
-    
     
     
     //bind the shader to the GPU
@@ -112,20 +90,19 @@ void BasicShaderIIApp::setup()
 	mParams.addParam( "Target X", &mTarget.x, "step=1" );
 	mParams.addParam( "Target Y", &mTarget.y, "step=1" );
 	mParams.addParam( "Target Z", &mTarget.z, "step=1" );
+    mParams.addParam( "Light Direction", &mLightDir );
     
-#ifdef _use_helloworld_color
-    mParams.addParam( "Color", &mKettleColor );
-#endif
-	mEye = Vec3f( 0, 0, -200.0f );
+	mEye = Vec3f( 0, 0, -75.0f );
 	mTarget = Vec3f( 0, 0, 0 );
 	mCam.setPerspective( 60.0f, getWindowAspectRatio(), 5.0f, 5000.0f );    
 	
     mCam.lookAt( mEye, mTarget, -Vec3f::yAxis() );	
-    
-    mKettleColor = Color::white();
+
     
 	mFont =  Font( loadResource( RES_DROID_SANS_FONT ), 16 );
 	mTextureFont = gl::TextureFont::create( mFont );
+    
+    mLightDir = Vec3f(-1.f, 0.f, 0.f);
 }
 
 void BasicShaderIIApp::keyDown( KeyEvent event )
@@ -164,7 +141,10 @@ void BasicShaderIIApp::resize( ResizeEvent event )
 
 void BasicShaderIIApp::update()
 {
-    //	mCam.lookAt( mEye, mTarget, -Vec3f::yAxis() );
+    mCam.lookAt( mEye, mTarget, Vec3f::yAxis() );
+
+    if(mLightDir.length() != 1.0f)
+        mLightDir.normalize();
 }
 
 void BasicShaderIIApp::draw()
@@ -188,13 +168,11 @@ void BasicShaderIIApp::draw()
 		mDoSave = false;
 	}
     
-    
-    gl::color( Color(1,1,0) ); //Color::white() );
-#ifdef _use_helloworld_color
-    gl::color( mKettleColor );    
-#endif
-    
     mShader.bind();
+    
+#ifdef _use_toon1
+    mShader.uniform("lightDir", mLightDir );   
+#endif
     
 #ifdef _use_helloworld_uniform         
     Vec2i pos = getMousePos();
@@ -216,26 +194,6 @@ void BasicShaderIIApp::draw()
     mShader.unbind();     
     
     gl::popMatrices();
-    
-    
-    
-    /*
-     // Set color through OpenGL state
-     gl::color( clr ); //Color::white() );
-     */
-    
-    
-    /* 
-     //basic hello world
-     mShader.bind();
-     gl::pushMatrices();
-     gl::rotate( mArcball.getQuat() );
-     
-     gl::draw( mVBO );
-     gl::popMatrices();
-     mShader.unbind();
-     */
-    
 }
 
 void BasicShaderIIApp::saveFrame()
