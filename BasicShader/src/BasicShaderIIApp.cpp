@@ -23,6 +23,7 @@
 
 
 #define _use_toon1
+//#define _use_toon2
 
 using namespace ci;
 using namespace ci::app;
@@ -75,10 +76,10 @@ void BasicShaderIIApp::setup()
 #ifdef _use_toon1
 	mShader = gl::GlslProg( loadResource( RES_TOON1_VERT ), loadResource( RES_TOON1_FRAG ) );    
 #endif
-    
-    
-    //bind the shader to the GPU
-    //    mShader.bind();
+
+#ifdef _use_toon2
+	mShader = gl::GlslProg( loadResource( RES_TOON2_VERT ), loadResource( RES_TOON2_FRAG ) );    
+#endif
     
 	mDoSave = false;
     
@@ -169,24 +170,8 @@ void BasicShaderIIApp::draw()
 	}
     
     mShader.bind();
-    
-#ifdef _use_toon1
     mShader.uniform("lightDir", mLightDir );   
-#endif
     
-#ifdef _use_helloworld_uniform         
-    Vec2i pos = getMousePos();
-    float nx = lerp(0.f, 1.f, float( pos.x )/ getWindowWidth() );    
-    float ny = lerp(0.f, 1.f, float( pos.y )/ getWindowHeight() );   
-    
-    Vec2f gobbedygook(nx,ny);
-    mShader.uniform("nmouse", gobbedygook );   
-#endif
-    
-#ifdef _use_flatten_wiggle
-    mShader.uniform("wiggle", true );   
-    mShader.uniform("time", float(getElapsedSeconds()) );       
-#endif
     gl::pushMatrices();
     gl::rotate( mArcball.getQuat() );
     gl::draw( mVBO );

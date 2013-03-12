@@ -5,3 +5,5 @@
 #define RES_TEAPOT_OBJ		CINDER_RESOURCE( ../Resources/, teapot.obj, 129, DATA )
 #define RES_TOON1_VERT		CINDER_RESOURCE( ../glsl/, toon1.vs, 130, GLSL )
 #define RES_TOON1_FRAG		CINDER_RESOURCE( ../glsl/, toon1.fs, 131, GLSL )
+#define RES_TOON2_VERT		CINDER_RESOURCE( ../glsl/, toon2.vs, 132, GLSL )
+#define RES_TOON2_FRAG		CINDER_RESOURCE( ../glsl/, toon2.fs, 133, GLSL )
